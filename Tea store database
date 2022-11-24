@@ -1,29 +1,29 @@
 --Create a tea store database
 
-CREATE TABLE te_butikk (id INTEGER PRIMARY KEY, name TEXT, weight REAL, price REAL, rating INTEGER);
+CREATE TABLE tea_store (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, weight INTEGER, price INTEGER, rating INTEGER);
 
-INSERT INTO te_butikk VALUES
-(1, "Rooibos des lords", 150, 299, 5),
-(2, "Mortens favoritt", 300, 24.90, 3.5),
-(3, "Ingefærboost", 300, 79.90, 4.3),
-(4, "Mammate", 150, 79.90, 2.8),
-(5, "Urtete", 300, 79.90, 3.2),
-(6, "Earl gray", 150, 24.90, 2.3),
-(7, "Kamillete", 300, 79.90, 3.3),
-(8, "Grønn jade", 150, 199, 4.8),
-(9, "Genmaicha", 150, 199, 4.9),
-(10, "Sort chai", 150, 149, 4.5),
-(11, "Bestemors favoritt", 300, 19.90, 1.2),
-(12, "Julete", 150, 249, 3.1),
-(13, "Påskete", 150, 249, 3.0),
-(14, "Tekopp", 200, 149, 5),
-(15, "Teposer", 15, 38.50, 4.7)
+INSERT INTO tea_store(name, weight, price, rating) VALUES
+("Rooibos des lords", 150, 299, 5),
+("My favorite", 300, 29, 3),
+("Ginger boost", 300, 79, 4),
+("Mommy tea", 150, 79, 2),
+("Herbal tea", 300, 79, 3),
+("Earl gray", 150, 29, 2),
+("Basil tea", 300, 79, 3),
+("Green jade", 150, 199, 4),
+("Genmaicha", 150, 199, 4),
+("Black chai", 150, 149, 4),
+("Grandma", 300, 19, 1),
+("Christmas tea", 150, 249, 3),
+("Easter tea", 150, 249, 3),
+("Tea cup", 200, 149, 5),
+("Tea bags", 15, 39, 4)
 ;
 
 --display the database ordered by price
-SELECT * FROM te_butikk
+SELECT * FROM tea_store
 ORDER BY price 
 ;
 
 --what is the maximum price in the store, and what is the name of the product with this price
-SELECT MAX(price), name FROM te_butikk;
+SELECT MAX(price), name FROM tea_store;
