@@ -1,0 +1,123 @@
+/* Data dig from Khan Academy's database on Pokemons: https://gist.github.com/pamelafox/26b9357c6120d3d0d27c2b90c950e8c6 */
+
+
+/* Average attack */
+SELECT AVG(Attack)
+FROM pokemon;
+
+/* 10 Worst Attackers */ 
+SELECT Name, Attack
+FROM pokemon
+ORDER BY Attack ASC
+LIMIT 10;
+
+/* 10 Best Attackers */ 
+SELECT Name, Attack
+FROM pokemon
+ORDER BY Attack DESC
+LIMIT 10;
+
+/* Average defense */
+SELECT AVG(Defense)
+FROM pokemon;
+
+/* 10 Worst Defenders */ 
+SELECT Name, Defense
+FROM pokemon
+ORDER BY Defense ASC
+LIMIT 10;
+
+/* 10 Best Defenders */ 
+SELECT Name, Defense
+FROM pokemon
+ORDER BY Defense DESC
+LIMIT 10;
+
+/* Average speed */
+SELECT AVG(Speed)
+FROM pokemon;
+
+/* 10 Fastest Pokemons */ 
+SELECT Name, Speed
+FROM pokemon
+ORDER BY Speed DESC
+LIMIT 10;
+
+/* Fastest Pokemon */ 
+SELECT Name, MAX(Speed)
+FROM pokemon
+;
+
+/* 10 Slowest Pokemons */ 
+SELECT Name, Speed
+FROM pokemon
+ORDER BY Speed ASC
+LIMIT 10;
+
+/* Slowest Pokemon */ 
+SELECT Name, MIN(Speed)
+FROM pokemon
+;
+
+/* Amount per type sorted alphabetically */
+SELECT Type_1, COUNT(*)
+FROM pokemon
+GROUP BY Type_1
+ORDER BY Type_1;
+
+/* Amount per type sorted by amount */
+SELECT COUNT(*), Type_1
+FROM pokemon
+GROUP BY Type_1
+ORDER BY COUNT(*);
+
+/* Filter Pokemons based on types  */
+SELECT Name, Type_1, Type_2
+FROM pokemon
+WHERE Type_1 = "Psychic" AND Type_2 = "Ghost"
+;
+
+/* Filter Pokemons based on types  */
+SELECT Name, Type_1, Type_2
+FROM pokemon
+WHERE Type_1 = "Psychic" OR Type_2 = "Ghost"
+ORDER BY Name
+;
+
+/* Filter Pokemons with two types  */
+SELECT Name, Type_1, Type_2
+FROM pokemon
+WHERE Type_1 LIKE "%" AND Type_2 LIKE "%"
+ORDER BY Name
+;
+
+/* Count Pokemons with two types */
+SELECT COUNT(*) AS two_types
+FROM pokemon
+WHERE Type_1 LIKE "%" AND Type_2 LIKE "%"
+;
+
+/* Best pokemon in total */
+SELECT Name, (Attack + Defense) AS total_strength
+FROM pokemon
+WHERE total_strength >= 300
+ORDER BY total_strength DESC
+;
+
+/* Type_1 with more than 60 pokemons */
+SELECT COUNT(*) AS number, type_1
+FROM pokemon 
+GROUP BY type_1
+HAVING COUNT(*) > 60
+ORDER BY number DESC
+;
+
+/* Fast and slow pokemons*/
+SELECT name, speed, CASE
+    WHEN speed > 90 THEN 'Fast!'
+    WHEN speed > 45 THEN 'Normal'
+    ELSE 'Slow'
+END AS SpeedAnalysis
+FROM pokemon
+ORDER BY speed DESC
+;
