@@ -1,0 +1,135 @@
+/* Modern family */
+
+CREATE TABLE persons (id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name TEXT,
+    middle_names TEXT,
+    last_name TEXT,
+    birthyear INTEGER
+    )
+;
+
+CREATE TABLE parents (id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person_id INTEGER,
+    father_id INTEGER,
+    mother_id INTEGER
+    )
+;
+
+CREATE TABLE jobs (id INTEGER PRIMARY KEY AUTOINCREMENT,
+    person_id INTEGER,
+    job TEXT,
+    field TEXT
+    )
+;
+
+INSERT INTO persons 
+        (first_name, middle_names, last_name, birthyear)
+    VALUES
+        ("Claire", "Marie Smith", "Johnson", 1982),
+        ("Thomas", "Mooney", "Chaze", 1980),
+        ("Josh", "Mooney", "Karlsen", 1985),
+        ("Xander", "Rogan", "Smith", 1993),
+        ("Nolan", "Mooney", "Johnson", 1994),
+        ("Charlotte", "Rogan", "Smith", 1994),
+        ("Aldo", "Mooney", "Johnson", 1996),
+        ("Breana", "Rogan", "Smith", 1997),
+        ("Johnny", NULL, "Johnson", 1956),
+        ("Desirae", "Jane", "Smith", 1961),
+        ("Alabama", NULL, "Rogan", 1966),
+        ("Alyssa", "Daisy", "Mooney", 1962)
+        
+;
+
+INSERT INTO parents 
+        (person_id, father_id, mother_id)
+    VALUES
+        (1, 9, 10),
+        (2, NULL, 12),
+        (3, NULL, 12),
+        (4, 11, 10),
+        (5, 9, 12),
+        (6, 11, 10),
+        (7, 9, 12),
+        (8, 11, 10)
+;
+
+INSERT INTO jobs
+        (person_id, job, field)
+    VALUES
+        (1, "Writer", "Art"),
+        (2, "CEO", "Oil"),
+        (3, "Key Account Manager", "Oil"),
+        (4, "Manager", "Fishing"),
+        (5, "Technician", "Oil"),
+        (6, "Teacher", "School"),
+        (7, "Engineer", "Autmotive"),
+        (8, "Marketing manager", "Retail"),
+        (9, "Warehouse worker", "Groceries"),
+        (10, "Nurse", "Drug rehab"),
+        (11, "CTO", "Ship building"),
+        (12, "Chef", "Cruise")
+;
+
+/* Show parents */
+SELECT per.first_name AS name, f.first_name AS father, m.first_name AS mother 
+FROM parents
+    JOIN persons per
+        ON per.id = parents.person_id
+    LEFT OUTER JOIN persons f
+        ON f.id = parents.father_id
+    LEFT OUTER JOIN persons m
+        ON m.id = parents.mother_id
+;
+
+/* Show number of children for each father */
+SELECT f.first_name AS father, COUNT (*) AS children
+FROM parents
+    LEFT OUTER JOIN persons f
+        ON f.id = parents.father_id
+    GROUP BY father
+;
+
+/* Show number of children for each mother */
+SELECT m.first_name AS mother, COUNT (*) AS children
+FROM parents
+    LEFT OUTER JOIN persons m
+        ON m.id = parents.mother_id
+    GROUP BY mother
+;
+
+/* Show all children of one mother */
+SELECT persons.first_name as Desirae_children
+FROM persons
+    JOIN parents
+        ON persons.id = parents.person_id
+    JOIN persons AS mother
+        ON parents.mother_id = mother.id
+    WHERE mother.first_name = "Desirae"
+;
+
+/* Show all children of other mother */
+SELECT persons.first_name as Alyssa_children
+FROM persons
+    JOIN parents
+        ON persons.id = parents.person_id
+    JOIN persons AS mother
+        ON parents.mother_id = mother.id
+    WHERE mother.first_name = "Alyssa"
+;
+
+/* Sort children by father*/
+SELECT child.first_name as child, father.first_name as father
+FROM parents
+    OUTER LEFT JOIN persons as child
+        ON child.id = parents.person_id
+    OUTER LEFT JOIN persons as father
+        ON father.id = parents.father_id
+    ORDER BY father.first_name
+;
+
+/* Show jobs */
+SELECT persons.first_name, jobs.job
+FROM persons
+    JOIN jobs
+        ON persons.id = jobs.person_id
+;
