@@ -1,0 +1,48 @@
+/* In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data. */
+
+/* How many orders where placed in January? */
+SELECT COUNT(*) FROM BIT_DB.JanSales;
+
+/* How many of those orders where of an iPhone? */
+SELECT COUNT(*) 
+FROM BIT_DB.JanSales
+WHERE Product = 'iPhone'
+;
+
+
+/* Select the customer account number of all the orders placed in February. */
+SELECT customers.acctnum
+FROM BIT_DB.customers customers
+JOIN BIT_DB.FebSales FebSales
+ON customers.order_id = FebSales.orderID
+;
+
+/* Which product was the cheapest one sold in January, 
+and what was the price? */
+SELECT DISTINCT Product, price
+FROM BIT_DB.JanSales
+WHERE price IN (SELECT MIN(price)FROM BIT_DB.JanSales)
+;
+
+/* What is the total revenue for each product sold in January? */
+SELECT Product, SUM(Quantity)*price AS revenue
+FROM BIT_DB.JanSales
+GROUP BY Product
+;
+
+/* Which products were sold in February at 
+548 Lincoln St, Seattle, WA 98101, how many of each were sold, 
+and what was the total revenue? */
+SELECT Product, Quantity, SUM(price*Quantity) AS Revenue
+FROM BIT_DB.FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101'
+;
+
+/* How many customers ordered more than 2 products at a time in February, 
+and what was the average amount spent for those customers? */
+SELECT COUNT(DISTINCT cust.acctnum), AVG(quantity*price)
+FROM BIT_DB.FebSales feb
+LEFT JOIN BIT_DB.customers cust
+ON feb.orderID=cust.order_ID
+WHERE Quantity > 2
+;
