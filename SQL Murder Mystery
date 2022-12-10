@@ -132,3 +132,19 @@ HAVING
 	AND
 	event_name LIKE '%SQL Symphony Concert%'
 ;
+
+/* Matching carowners */
+
+SELECT *
+FROM drivers_license
+WHERE
+	gender = 'female'
+	AND
+	hair_color = 'red'
+	AND 
+	car_make = 'Tesla'
+	AND 
+	car_model = 'Model S'
+	AND
+	height BETWEEN 65 AND 67
+;
