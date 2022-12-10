@@ -1,0 +1,134 @@
+/* My code to solve the SQL Murder Mystery from mystery.knightlab.com */
+/* IN PROGRESS */
+
+/*A crime has taken place and the detective needs your help. 
+The detective gave you the crime scene report, but you somehow lost it. 
+You vaguely remember that the crime was a ​murder​ that occurred sometime on 
+​Jan.15, 2018​ and that it took place in ​SQL City​.*/
+
+SELECT *
+FROM crime_scene_report
+WHERE 
+	date = 20180115
+	AND
+	city = 'SQL City'
+	AND 
+	type = 'murder';
+              
+ /* Security footage shows that there were 2 witnesses. 
+ The first witness lives at the last house on "Northwestern Dr". 
+ The second witness, named Annabel, lives somewhere on "Franklin Ave".*/
+ 
+ /* Finding the first witness */
+
+SELECT id, name, MAX(address_number), address_street_name
+FROM person
+WHERE address_street_name = 'Northwestern Dr';
+
+/* ID: 14887 Name: Morty Schapiro */
+
+/* Finding the second witness */
+
+SELECT id, name, address_street_name
+FROM person
+WHERE 
+	address_street_name = 'Franklin Ave'
+	AND
+	name LIKE '%Annabel%';
+
+/*ID: 16371 Name Annabel Miller */
+
+/* Pulling up testimonies */
+
+SELECT person.name as name, interview.transcript as testimony
+FROM interview
+INNER JOIN person
+	ON person.id = interview.person_id
+WHERE 
+	name IN ('Annabel Miller', 'Morty Schapiro');
+  
+/* TESTIMONIES
+Morty Schapiro: I heard a gunshot and then saw a man run out. 
+He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". 
+Only gold members have those bags. The man got into a car with a plate that included "H42W".
+
+Annabel Miller: I saw the murder happen, and I recognized the killer from my gym when 
+I was working out last week on January the 9th.
+*/
+
+/* Selecting all members that correspond with Schapiros testimony */
+
+SELECT *
+FROM get_fit_now_member
+WHERE 
+	membership_status = 'gold'
+	AND
+	id LIKE '48Z%';
+
+/* Suspects:
+id	  person_id	name	        membership_start_date	  membership_status
+48Z7A	28819	    Joe Germuska	20160305	              gold
+48Z55	67318	    Jeremy Bowers	20160101	              gold
+*/
+
+/* Finding who chechked in on January the 9th */
+
+SELECT member.id as 'id' , member.name as 'name', checkin.check_in_date as 'date'
+FROM get_fit_now_member member
+INNER JOIN
+	get_fit_now_check_in checkin
+	ON
+	member.id = checkin.membership_id
+WHERE 
+	membership_status = 'gold'
+	AND
+	id LIKE '48Z%'
+	AND
+	date = 20180109;
+  
+/* Both suspects returned */
+
+/* Finding men with cars with matching plate number */
+
+SELECT * 
+FROM drivers_license
+WHERE 
+	plate_number LIKE '%H42W%'
+	AND
+	gender = 'male'
+;
+
+/* Looking for testimonies with the suspects */
+
+FROM get_fit_now_member member
+LEFT JOIN interview
+	ON member.person_id = interview.person_id
+WHERE 
+	member.membership_status = 'gold'
+	AND
+	member.id LIKE '48Z%';
+  
+/* Jeremy Bowers:
+I was hired by a woman with a lot of money. I don't know her name but I know she's around 5'5" 
+(65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she attended 
+the SQL Symphony Concert 3 times in December 2017.
+*/
+
+/* Looking for the woman in Jeremy Bowers testimony */
+
+/* I was hired by a woman with a lot of money. I don't know her name but I know she's around 
+5'5" (65") or 5'7" (67"). She has red hair and she drives a Tesla Model S. I know that she 
+attended the SQL Symphony Concert 3 times in December 2017. */
+
+/* People  who attended the SQL Symphony Concert 3 times in December 2017 */
+
+SELECT *, COUNT (*) as 'visits'
+FROM facebook_event_checkin
+GROUP BY person_id
+HAVING 
+	date LIKE '201712%'
+	AND
+	visits = 3
+	AND
+	event_name LIKE '%SQL Symphony Concert%'
+;
