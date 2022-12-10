@@ -1,0 +1,148 @@
+/* For this project I downloaded Spotify data from Kaggle.
+Then I created a table to insert the data into.
+Finally, I performed analytics on the data using SQL. */
+
+
+/* Creating new table in the database */
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL )
+;
+
+/* Looking at what the table contains*/
+SELECT *
+FROM BIT_DB.Spotifydata
+LIMIT 10
+;
+
+/* What is the average danceability by artist? */
+SELECT artist_name, AVG(danceability)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY AVG(danceability) desc
+;
+
+/* What is the average danceability overall? */
+SELECT AVG(danceability)
+FROM BIT_DB.Spotifydata
+;
+
+/* Who are the top 10 artists based on popularity? */
+SELECT distinct artist_name, popularity
+FROM BIT_DB.Spotifydata
+ORDER BY popularity desc
+LIMIT 10
+;
+
+/* What artist released the longest song? */
+SELECT artist_name, duration_ms
+FROM BIT_DB.Spotifydata
+ORDER BY duration_ms desc
+LIMIT 1
+;
+
+/*OR*/
+SELECT artist_name, MAX(duration_ms)
+FROM BIT_DB.Spotifydata
+;
+
+/* What's the average danceability for the 10 most popular songs? */
+SELECT AVG(danceability)
+FROM BIT_DB.Spotifydata
+WHERE popularity in (
+    SELECT popularity 
+    FROM BIT_DB.Spotifydata
+    ORDER BY popularity desc
+    LIMIT 10)
+;
+
+/* What songs have a tempo greater than average, 
+from highest to lowest tempo */
+SELECT artist_name, track_name, tempo
+FROM BIT_DB.Spotifydata
+WHERE tempo > (SELECT AVG(tempo) FROM BIT_DB.Spotifydata)
+ORDER BY tempo desc
+;
+
+/* How long is this playlist, in minutes? */
+SELECT SUM(duration_ms)/60000 AS DurationMinutes
+FROM BIT_DB.Spotifydata
+;
+
+/* How many songs does each artist have on the list? */
+SELECT artist_name, COUNT(*) as NumberOfSongs
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY NumberOfSongs desc
+;
+
+/* Details about the two most popular artists */
+SELECT *
+FROM BIT_DB.Spotifydata
+WHERE artist_name IN ('Olivia Rodrigo', 'Doja Cat')
+;
+
+/* Average popularity for two most popular artists */
+SELECT Artist_name, AVG(popularity)
+FROM BIT_DB.Spotifydata
+WHERE artist_name IN ('Olivia Rodrigo', 'Doja Cat')
+GROUP BY artist_name
+;
+
+/* Average danceability for two most popular artists */
+SELECT Artist_name, AVG(danceability)
+FROM BIT_DB.Spotifydata
+WHERE artist_name IN ('Olivia Rodrigo', 'Doja Cat')
+GROUP BY artist_name
+;
+
+/* What songs have high energy AND acoustic sound? */
+SELECT artist_name, track_name, energy, acousticness
+FROM BIT_DB.Spotifydata
+WHERE 
+    energy > (SELECT AVG(energy) FROM BIT_DB.Spotifydata) 
+    AND 
+    acousticness > (SELECT AVG(acousticness) FROM BIT_DB.Spotifydata)
+ORDER BY popularity
+;
+
+/* What songs have high danceability AND low loudness? */
+SELECT artist_name, track_name, danceability, loudness
+FROM BIT_DB.Spotifydata
+WHERE 
+    danceability > (SELECT AVG(danceability) FROM BIT_DB.Spotifydata) 
+    AND 
+    loudness < (SELECT AVG(loudness) FROM BIT_DB.Spotifydata)
+ORDER BY popularity
+;
+
+/* What is the length of the playlist above in minutes? */
+SELECT SUM(duration_MS)/60000 as duration
+FROM BIT_DB.Spotifydata
+WHERE 
+    danceability > (SELECT AVG(danceability) FROM BIT_DB.Spotifydata) 
+    AND 
+    loudness < (SELECT AVG(loudness) FROM BIT_DB.Spotifydata)
+;
+
+/*What songs are 3 minutes or longer? */
+SELECT artist_name, track_name, duration_MS/60000 as duration
+FROM BIT_DB.Spotifydata
+WHERE duration >= 3
+ORDER BY duration desc
