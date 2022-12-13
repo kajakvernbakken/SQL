@@ -1,0 +1,249 @@
+/* Analysing a databse with music tracks and related orders */ 
+
+/*Show Customers (their full names, customer ID, and country) who are not in the US. */
+SELECT FirstName, LastName, CustomerId, Country
+FROM chinook.customers
+WHERE Country <> 'USA';
+
+/* How many customers live outside of the US? */
+SELECT COUNT(*) as NonUScust
+FROM chinook.customers
+WHERE Country <> 'USA';
+
+/* Show only the Customers from Brazil. */
+SELECT FirstName, LastName, CustomerId, Country
+FROM chinook.customers
+WHERE Country = 'Brazil';
+
+/* How many customers live in Brazil? */
+SELECT COUNT (*)
+FROM chinook.customers
+WHERE Country = 'Brazil';
+
+/* Find the Invoices of customers who are from Brazil. 
+The resulting table should show the customer's full name, 
+Invoice ID, Date of the invoice, and billing country. */
+SELECT 
+    customer.FirstName as FirstName, 
+    customer.LastName as LastName, 
+    invoice.InvoiceId as Invoice,
+    invoice.InvoiceDate as Date,
+    customer.Country as Country
+FROM chinook.invoices invoice
+JOIN chinook.customers customer
+    ON customer.CustomerId = invoice.CustomerId
+WHERE country = 'Brazil'
+ORDER BY date;
+
+/* Show the Employees who are Sales Agents. */
+SELECT *
+FROM chinook.employees
+WHERE title = 'Sales Support Agent';
+
+/* Find a unique/distinct list of billing countries from the Invoice table.*/
+SELECT DISTINCT BillingCountry
+FROM chinook.invoices
+ORDER BY BillingCountry;
+
+/* Provide a query that shows the invoices associated with each sales agent. 
+The resulting table should include the Sales Agent's full name.*/
+SELECT 
+    employee.FirstName as FirstName,
+    employee.LastName as LastName,
+    invoice.InvoiceID as Invoice
+FROM chinook.employees as employee
+JOIN chinook.customers as customer
+    ON employee.EmployeeId = customer.SupportRepId
+JOIN chinook.invoices as invoice
+    ON customer.CustomerId = invoice.CustomerId;
+
+/* Show the Invoice Total, Customer name, Country, 
+and Sales Agent name for all invoices and customers.*/
+SELECT 
+    invoice.InvoiceID as Invoice,
+    customer.FirstName || ' ' || customer.LastName as Customer,
+    customer.Country as Country,
+    employee.FirstName || ' ' || employee.LastName as SalesAgent,
+    invoice.Total as Total
+FROM chinook.invoices as invoice
+LEFT JOIN chinook.customers as customer
+    ON customer.CustomerId = invoice.CustomerId
+LEFT JOIN chinook.employees as employee
+    ON employee.EmployeeId = customer.SupportRepId;
+
+/* How many Invoices were there in 2009?*/
+SELECT COUNT(*)
+FROM chinook.invoices
+WHERE InvoiceDate LIKE '2009%';
+
+
+/* What are the total sales for 2009? */
+SELECT SUM(Total) as TotalSales
+FROM chinook.invoices
+WHERE InvoiceDate LIKE '2009%';
+
+/* Write a query that includes the purchased track name with each invoice line ID.*/
+SELECT invoice_items.InvoiceLineId, tracks.Name as Track
+FROM invoice_items
+JOIN tracks 
+    ON tracks.TrackId = invoice_items.TrackId
+ORDER BY InvoiceLineId;
+
+/*Write a query that includes the purchased track name AND artist name with each invoice line ID.*/
+SELECT invoice_items.InvoiceLineId, tracks.Name as Track, artists.Name as Artist
+FROM invoice_items
+JOIN tracks 
+    ON tracks.TrackId = invoice_items.TrackId
+JOIN albums
+    ON tracks.AlbumId = albums.AlbumId
+JOIN artists
+    ON albums.ArtistId = artists.ArtistId
+ORDER BY InvoiceLineId;
+
+/* Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.*/
+SELECT track.Name as TrackName, album.Title as AlbumTitle, media.Name as MediaType, genre.Name as Genre
+FROM chinook.tracks track
+JOIN chinook.albums album
+    ON track.AlbumId = album.AlbumId
+JOIN chinook.media_types media
+    ON media.MediaTypeId = track.MediaTypeId
+JOIN chinook.genres genre
+    ON genre.GenreId = track.GenreId;
+
+/* Show the total sales made by each sales agent.*/
+SELECT 
+    employees.FirstName || ' ' || employees.LastName as SalesAgent,
+    ROUND(SUM(invoices.Total)) as TotalSales
+FROM invoices
+JOIN customers
+    ON invoices.CustomerId = customers.CustomerId
+JOIN employees
+    ON customers.SupportRepId = employees.EmployeeId
+GROUP BY SalesAgent;
+
+/* Which sales agent made the most dollars in sales in 2009?*/
+SELECT 
+    employees.FirstName || ' ' || employees.LastName as SalesAgent,
+    ROUND(SUM(invoices.Total)) as TotalSales
+FROM invoices
+JOIN customers
+    ON invoices.CustomerId = customers.CustomerId
+JOIN employees
+    ON customers.SupportRepId = employees.EmployeeId
+WHERE invoices.InvoiceDate LIKE '2009%'
+GROUP BY SalesAgent 
+ORDER BY TotalSales desc
+LIMIT 1;
+
+/* What were the top 10 tracks based on sales? */
+SELECT tracks.Name as Track, SUM(invoice_items.Quantity) as Sales
+FROM invoice_items
+JOIN tracks
+    ON invoice_items.TrackId = tracks.TrackId
+GROUP BY Track
+ORDER BY Sales desc
+LIMIT 10;
+
+/* What were the top 5 tracks in 2009 based on sales? */
+SELECT tracks.Name as Track, SUM(invoice_items.Quantity) as Sales
+FROM invoice_items
+JOIN tracks
+    ON invoice_items.TrackId = tracks.TrackId
+JOIN invoices 
+    ON invoices.InvoiceId = invoice_items.InvoiceId
+WHERE invoices.InvoiceDate LIKE '2009%'
+GROUP BY Track
+ORDER BY Sales desc
+LIMIT 5;
+
+/* What were the top 3 genres in 2009 based on sales */
+SELECT genres.Name as Genre, SUM(invoice_items.Quantity) as Sales
+FROM invoice_items
+JOIN tracks
+    ON invoice_items.TrackId = tracks.TrackId
+JOIN invoices 
+    ON invoices.InvoiceId = invoice_items.InvoiceId
+JOIN genres
+    ON tracks.GenreId = genres.GenreId
+WHERE invoices.InvoiceDate LIKE '2009%'
+GROUP BY Genre
+ORDER BY Sales desc
+LIMIT 3;
+
+SELECT *
+FROM playlists;
+
+/* Which tracks are in which playlists? */
+SELECT tracks.Name as Track, playlists.Name as Playlist
+FROM playlists
+JOIN playlist_track
+    ON playlists.PlaylistId = playlist_track.PlaylistId
+JOIN tracks
+    ON playlist_track.TrackId = tracks.TrackId
+ORDER BY Playlist
+;
+
+/* How many tracks are there in each playlist? */
+SELECT playlists.Name as Playlist, COUNT(playlist_track.PlaylistId) as Tracks
+FROM playlists
+JOIN playlist_track
+    ON playlists.PlaylistId = playlist_track.PlaylistId
+JOIN tracks
+    ON playlist_track.TrackId = tracks.TrackId
+GROUP BY Playlist
+ORDER BY Tracks desc
+;
+
+/* Who were the top 5 artist in 2009 based on sales? */
+SELECT artists.Name as Artist, SUM(invoice_items.Quantity) as Sales
+FROM invoice_items
+JOIN tracks
+    ON invoice_items.TrackId = tracks.TrackId
+JOIN invoices 
+    ON invoices.InvoiceId = invoice_items.InvoiceId
+JOIN albums
+    ON tracks.AlbumId = albums.AlbumId
+JOIN artists
+    ON albums.ArtistId = artists.ArtistId
+WHERE invoices.InvoiceDate LIKE '2009%'
+GROUP BY Artist
+ORDER BY Sales desc
+LIMIT 5;
+
+/* How many items were sold in total? */
+SELECT SUM(invoice_items.Quantity) as Quantity
+FROM invoice_items;
+
+/*How many items where sold in 2009? */
+SELECT SUM(invoice_items.Quantity) as Quantity
+FROM invoice_items
+JOIN invoices
+    ON invoice_items.InvoiceId = invoices.InvoiceId
+WHERE invoices.InvoiceDate LIKE '2009%';
+
+/* What is the most expensive track price? */
+SELECT MAX(UnitPrice)
+FROM tracks;
+
+/*How many tracks are sold at each price point? */
+SELECT COUNT(*), UnitPrice
+FROM tracks
+GROUP BY UnitPrice
+ORDER BY UnitPrice desc;
+
+/*How many tracks at each pice point are there in the top 10 list? */
+WITH topsellers (Track, Sales, UnitPrice) AS
+    (SELECT tracks.Name as Track, SUM(invoice_items.Quantity) as Sales, tracks.UnitPrice
+    FROM invoice_items
+    JOIN tracks
+       ON invoice_items.TrackId = tracks.TrackId
+       GROUP BY Track
+       ORDER BY Sales desc
+       LIMIT 10)
+
+SELECT COUNT(*), UnitPrice
+FROM topsellers
+GROUP BY UnitPrice
+ORDER BY UnitPrice desc      
+;
+       
